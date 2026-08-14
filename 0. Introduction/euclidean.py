@@ -17,6 +17,10 @@ def gcd(a: int, b: int, *rest: int) -> int:
     return result
 
 
+def lcm(a: int, b: int) -> int:
+    return a * b // gcd2(a, b)
+
+
 if __name__ == '__main__':
     print(f'{gcd2(45, 30) = }')
     print(f'{gcd2(6307, 1995) = }')
@@ -25,3 +29,5 @@ if __name__ == '__main__':
     print(f'{coprimes(99, 98) = }')
     print(f'{coprimes(42, 56) = }')
     print(f'{gcd(45, 30, 20, 100) = }')
+    print(f'{lcm(15, 20) = }')
+    print(f'{lcm(10, 20) = }')
