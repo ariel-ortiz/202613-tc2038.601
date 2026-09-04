@@ -1,4 +1,5 @@
 from typing import cast
+from collections.abc import Iterator, Iterable
 
 
 class OrderedSet[T]:
@@ -18,10 +19,12 @@ class OrderedSet[T]:
     __sentinel: OrderedSet.Node[T]
     __count: int
 
-    # Complexity: O(1)
-    def __init__(self) -> None:
+    # Complexity: O(N) where N = len(values)
+    def __init__(self, values: Iterable[T] = ()) -> None:
         self.__sentinel = OrderedSet.Node(cast(T, None))
         self.__count = 0
+        for elem in values:
+            self.add(elem)
 
     # Complexity: O(1)
     def __len__(self) -> int:
@@ -29,18 +32,12 @@ class OrderedSet[T]:
 
     # Complexity: O(N)
     def __repr__(self) -> str:
-        current: OrderedSet.Node[T] = self.__sentinel.next
-        result: list[T] = []
-        while current is not self.__sentinel:
-            result.append(current.info)
-            current = current.next
-        return f'OrderedSet({result})'
+        return f'OrderedSet({list(self) if self else ""})'
 
-    # Complexity: O(1)
+    # Complexity: O(N)
     def add(self, value: T) -> None:
-        # TODO: Check if value already exists
-
-        # Assume that value doesn't exist, so add to the end
+        if value in self:
+            return
         self.__count += 1
         new_node: OrderedSet.Node[T] = OrderedSet.Node(value)
         new_node.prev = self.__sentinel.prev
@@ -48,14 +45,29 @@ class OrderedSet[T]:
         self.__sentinel.prev.next = new_node
         self.__sentinel.prev = new_node
 
+    # Complexity: O(N)
+    def __iter__(self) -> Iterator[T]:
+        current: OrderedSet.Node[T] = self.__sentinel.next
+        while current is not self.__sentinel:
+            yield current.info
+            current = current.next
+
+    # Complexity: O(N)
+    def __contains__( self, value: object) -> bool:
+        for elem in self:
+            if elem == value:
+                return True
+        return False
+
 
 if __name__ == '__main__':
-    a: OrderedSet[int] = OrderedSet()
-    print(a)
-    a.add(4)
-    a.add(8)
-    a.add(15)
-    a.add(16)
-    a.add(23)
+    a: OrderedSet[int] = OrderedSet([4, 8, 15, 16, 23])
     print(len(a))
     print(a)
+    for i in a:
+        print(i)
+    print(list(a))
+    b: OrderedSet[str] = OrderedSet('hello')
+    print(b)
+    print(4 in b)
+    print('e' in b)
