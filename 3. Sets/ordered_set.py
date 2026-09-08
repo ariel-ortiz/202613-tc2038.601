@@ -59,15 +59,67 @@ class OrderedSet[T]:
                 return True
         return False
 
+    # Complexity: O(N)
+    def discard(self, value: T) -> None:
+        current: OrderedSet.Node[T] = self.__sentinel.next
+        while current is not self.__sentinel:
+            if current.info == value:
+                current.next.prev = current.prev
+                current.prev.next = current.next
+                self.__count -= 1
+                return
+            current = current.next
+
+    # Complexity: O(N ^ 2) because len(self) == len(other)
+    def __eq__(self, other: object) -> bool:
+        if self is other:
+            return True
+        if not isinstance(other, OrderedSet):
+            return False
+        if len(self) != len(cast(OrderedSet[T], other)):
+            return False
+        for elem in self:
+            if elem not in other:
+                return False
+        return True
+
+    # Complexity: O(N * M) where N = len(self) and M = len(other)
+    def __le__(self, other: OrderedSet[T]) -> bool:
+        if self is other:
+            return True
+        if len(self) > len(other):
+            return False
+        for elem in self:
+            if elem not in other:
+                return False
+        return True
+
+    # Complexity: O(N * M) where N = len(self) and M = len(other)
+    def __and__(self, other: OrderedSet[T]) -> OrderedSet[T]:
+        result: OrderedSet[T] = OrderedSet()
+        for elem in self:
+            if elem in other:
+                result.add(elem)
+        return result
+
 
 if __name__ == '__main__':
     a: OrderedSet[int] = OrderedSet([4, 8, 15, 16, 23])
-    print(len(a))
     print(a)
-    for i in a:
-        print(i)
-    print(list(a))
-    b: OrderedSet[str] = OrderedSet('hello')
+    a.discard(8)
+    a.discard(9)
+    print(a)
+    print(a == a)
+    print(a == 'Hello')
+    b: OrderedSet[int] = OrderedSet([23, 4, 15, 16])
+    print(a <= b)
+    print(b <= a)
+    a.discard(15)
+    print(a <= b)
+    print(b <= a)
+    a = OrderedSet([1, 2 ,3])
+    b = OrderedSet([3, 4, 2])
+    c: OrderedSet[int] = b & a
+    print(a)
     print(b)
-    print(4 in b)
-    print('e' in b)
+    print(c)
