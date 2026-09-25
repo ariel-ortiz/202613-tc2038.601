@@ -36,6 +36,11 @@ def permute[T](s: list[T]) -> list[list[T]]:
     return sum([insert_everywhere(s[-1], t) for t in permute(s[:-1])], empty)
 
 
+def permutations[T](s: list[T], k: int) -> list[list[T]]:
+    empty: list[list[T]] = []
+    return sum([permute(e) for e in combinations(s, k)], empty)
+
+
 if __name__ == '__main__':
     pprint(power_set([]))  # type: ignore
     pprint(power_set([1]))
@@ -53,3 +58,6 @@ if __name__ == '__main__':
     pprint(insert_everywhere(7, [1, 2, 3, 4, 5, 6]))
     pprint(sorted(permute([1, 2, 3])))
     pprint(sorted(permute([1, 2, 3, 4])))
+    pprint(sorted(permutations([1, 2, 3], 1)))
+    pprint(sorted(permutations([1, 2, 3], 2)))
+    pprint(sorted(permutations([1, 2, 3], 3)))
