@@ -1,5 +1,6 @@
 from typing import NamedTuple, cast
 from csp import Constraint, CSP
+from itertools import permutations, batched
 
 
 type Grid = list[list[int]]
@@ -19,31 +20,90 @@ def convert_to_grid(assignment: dict[int, GridLocation]) -> Grid:
     return result
 
 
-if __name__ == '__main__':
-    a: GridLocation = GridLocation(1, 2)
-    print(f'{a = }')
-    b: GridLocation = GridLocation(1, 2)
-    print(f'{b = }')
-    print(f'{(a == b) = }')
-    c: GridLocation = GridLocation(2, 2)
-    print(f'{c = }')
-    print(f'{(a == c) = }')
-    (x, y) = a
-    print(f'{x = }')
-    print(f'{y = }')
-    print(f'{a[0] = }')
-    print(f'{a[1] = }')
-    print(f'{a.row = }')
-    print(f'{a.column = }')
-    print(convert_to_grid({
-        1: GridLocation(0, 0),
-        2: GridLocation(0, 1),
-        3: GridLocation(0, 2),
-        4: GridLocation(1, 0),
-        5: GridLocation(1, 1),
-        6: GridLocation(1, 2),
-        7: GridLocation(2, 0),
-        8: GridLocation(2, 1),
-        9: GridLocation(2, 2)
-    }))
 
+def is_magic_square(square: Grid) -> bool:
+    ((a, b, c),
+     (d, e, f),
+     (g, h, i)) = square
+    return (   (a + b + c)  # Check rows
+            == (d + e + f)
+            == (g + h + i)
+            == (a + d + g)  # Check columns
+            == (b + e + h)
+            == (c + f + i)
+            == (a + e + i)
+            == (g + e + c))
+
+
+class MagicSquareConstraint(Constraint[int, GridLocation]):
+
+    def __init__(self, variables: list[int]) -> None:
+        super().__init__(variables)
+        self.variables:list[int] = variables
+
+    def satisfied(self, assignment: dict[int, GridLocation]) -> bool:
+        if len(assignment) != len(set(assignment.values())):
+            return False
+        if len(assignment) < 9:
+            return True
+        return is_magic_square(convert_to_grid(assignment))
+
+
+def solve_magic_square() -> None:
+    variables: list[int] = list(range(1, 10))
+    all_grid_locations: list[GridLocation] = [GridLocation(r, c)
+                                              for r in range(3)
+                                              for c in range(3)]
+    domains: dict[int, list[GridLocation]] = {var: all_grid_locations
+                                              for var in variables}
+    csp: CSP[int, GridLocation] = CSP(variables, domains)
+    csp.add_constraint(MagicSquareConstraint(variables))
+    solution: dict[int, GridLocation] | None = csp.backtracking_search()
+    if solution:
+        print(convert_to_grid(solution))
+    else:
+        print('No solution found :(')
+
+
+def brute_force_magic_square() -> None:
+    for (i, p) in enumerate(permutations(range(1, 10))):
+        grid: Grid = cast(Grid, list(batched(p, 3)))
+        if is_magic_square(grid):
+            print(i, grid)
+
+
+if __name__ == '__main__':
+    # a: GridLocation = GridLocation(1, 2)
+    # print(f'{a = }')
+    # b: GridLocation = GridLocation(1, 2)
+    # print(f'{b = }')
+    # print(f'{(a == b) = }')
+    # c: GridLocation = GridLocation(2, 2)
+    # print(f'{c = }')
+    # print(f'{(a == c) = }')
+    # (x, y) = a
+    # print(f'{x = }')
+    # print(f'{y = }')
+    # print(f'{a[0] = }')
+    # print(f'{a[1] = }')
+    # print(f'{a.row = }')
+    # print(f'{a.column = }')
+    # print(convert_to_grid({
+    #     1: GridLocation(0, 0),
+    #     2: GridLocation(0, 1),
+    #     3: GridLocation(0, 2),
+    #     4: GridLocation(1, 0),
+    #     5: GridLocation(1, 1),
+    #     6: GridLocation(1, 2),
+    #     7: GridLocation(2, 0),
+    #     8: GridLocation(2, 1),
+    #     9: GridLocation(2, 2)
+    # }))
+    # print(is_magic_square([[1, 2, 3],
+    #                        [4, 5, 6],
+    #                        [7, 8, 9]]))
+    # print(is_magic_square([[8, 3, 4],
+    #                        [1, 5, 9],
+    #                        [6, 7, 2]]))
+    solve_magic_square()
+    brute_force_magic_square()
