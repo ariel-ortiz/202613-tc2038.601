@@ -5,6 +5,31 @@ from collections import deque
 type WeightedGraph = dict[str, set[tuple[str, int]]]
 
 
+class Edge(NamedTuple):
+
+    weight: int
+    u: str
+    v: str
+
+    def __eq__(self, other: object) -> bool:
+        if not isinstance(other, Edge):
+            return False
+        return (self.weight == other.weight
+                and ((self.u == other.u and self.v == other.v)
+                     or (self.u == other.v and self.v == other.u)))
+
+    def __hash__(self):
+        return hash(self.weight) + hash(self.u) + hash(self.v)
+
+
+def sort_edges(graph: WeightedGraph) -> deque[Edge]:
+    result: set[Edge] = set()
+    for u, neighbours in graph.items():
+        for v, weight in neighbours:
+            result.add(Edge(weight, u, v))
+    return deque(sorted(list(result)))
+
+
 if __name__ == '__main__':
     g1: WeightedGraph = {
         'A': {('B', 2), ('C', 6), ('D', 5)},
@@ -22,3 +47,19 @@ if __name__ == '__main__':
         'G': {('C', 7), ('D', 2), ('E', 8), ('F', 11), ('H', 5)},
         'H': {('F', 4), ('G', 5)}
     }
+    # e1: Edge = Edge(10, 'A', 'B')
+    # e2: Edge = Edge(10, 'B', 'A')
+    # print(e1)
+    # print(e2)
+    # print(e1 == e2)
+    # print(e1 == 5)
+    # s: set[Edge] = set()
+    # print(s)
+    # s.add(e1)
+    # s.add(e2)
+    # print(s)
+    # print(hash(e1))
+    # print(hash(e2))
+    from pprint import pprint
+    pprint(sort_edges(g1))
+    pprint(sort_edges(g2))
