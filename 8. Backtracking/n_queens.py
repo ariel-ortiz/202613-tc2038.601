@@ -34,3 +34,28 @@ def solve(board: Board, col: int) -> Board | None:
                 return result
             board[row][col] = False
     return None
+
+
+def queens(n: int) -> Board | None:
+    board: Board = [[False for _ in range(n)] for _ in range(n)]
+    return solve(board, 0)
+
+
+def print_board(board: Board) -> None:
+    for row in board:
+        for x in row:
+            if x:
+                print('Q', end=' ')
+            else:
+                print('.', end=' ')
+        print()
+
+
+if __name__ == '__main__':
+    b: Board | None = queens(8)
+    if b:
+        print_board(b)
+    else:
+        print('No solution found')
+
+
